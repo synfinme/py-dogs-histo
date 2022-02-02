@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
       - name: py-dogs-histo
-        image: synfinmelab/py-dogs-histo:v0.1
+        image: synfinmelab/py-dogs-histo:v0.2
         imagePullPolicy: IfNotPresent
         command:
         - /opt/scripts/py-dogs-histo.py
@@ -31,3 +31,5 @@ spec:
           valueFrom:
             fieldRef:
               fieldPath: metadata.uid
+        - name: DELAY_SECONDS
+          value: '0.1'
