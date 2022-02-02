@@ -1,12 +1,12 @@
 #!/usr/bin/env python3
 
 #from prometheus_client import start_http_server, Histogram
-#import os
-#import random
 #import sys
-#import time
 
 from datadog import initialize, statsd
+import os
+import random
+import time
 
 try:
     from dataset import data
@@ -27,6 +27,15 @@ options = {
 }
 
 initialize(**options)
+
+while (1):
+    i = 0
+    for v in data:
+        statsd.histogram(metric_name, v)
+        print('%4d : %f' % (i, v))
+        i += 1
+        time.sleep(0.1)
+    break
 
 #h = Histogram(metric_name, 'Description of %s' % (metric_name))
 #
