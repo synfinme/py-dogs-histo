@@ -1,0 +1,29 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: py-dogs-histo
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: py-dogs-histo
+  template:
+    metadata:
+      labels:
+        app: py-dogs-histo
+    spec:
+      containers:
+      - name: py-dogs-histo
+        image: synfinmelab/py-dogs-histo:v0.1
+        imagePullPolicy: IfNotPresent
+        command:
+        - /opt/scripts/py-dogs-histo.py
+        env:
+        - name: METRIC_NAME_SUFFIX
+          value: ''
+        - name: DD_AGENT_HOST
+          valueFrom:
+            fieldRef:
+              fieldPath: status.hostIP
+        - name: DD_DOGSTATSD_PORT
+          value: '8125'
