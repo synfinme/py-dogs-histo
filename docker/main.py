@@ -1,11 +1,9 @@
 #!/usr/bin/env python3
 
-#from prometheus_client import start_http_server, Histogram
-#import sys
-
-from datadog import initialize, statsd
+import datadog
 import os
 import random
+import sys
 import time
 
 try:
@@ -14,54 +12,47 @@ except ImportError:
     from default_dataset import data
 
 
-METRIC_NAME_BASE = 'py_dogstatsd_histo'
 METRIC_NAME_SUFFIX = os.environ.get('METRIC_NAME_SUFFIX', '')
+STATSD_HOST        = os.environ.get('DD_AGENT_HOST', '127.0.0.1')
+STATSD_PORT        = os.environ.get('DD_DOGSTATSD_PORT', '8125')
 
-metric_name = METRIC_NAME_BASE
+
+metric_name = 'py_dogstatsd_histo'
 if len(METRIC_NAME_SUFFIX) > 0:
     metric_name += '_' + METRIC_NAME_SUFFIX
 
-options = {
-    'statsd_host': '127.0.0.1',
-    'statsd_port': 8125
-}
 
-initialize(**options)
+def init():
+    options = {
+        'statsd_host': STATSD_HOST,
+        'statsd_port': int(STATSD_PORT)
+    }
+    print('init(): options =', options)
+    datadog.initialize(**options)
 
-while (1):
-    i = 0
+
+def update_stats():
+    # Streams dataset into DD Agent (DatadogStatsD)
     for v in data:
-        statsd.histogram(metric_name, v)
-        print('%4d : %f' % (i, v))
-        i += 1
+        datadog.statsd.histogram(metric_name, v)
         time.sleep(0.1)
-    break
 
-#h = Histogram(metric_name, 'Description of %s' % (metric_name))
-#
-#
-#def update_stats():
-#    # Populates 'h' metric with a bunch of values from imported dataset
-#    for v in data:
-#        h.observe(v)
-#
-#
-#def main():
-#    start_http_server(9100)
-#    x = 0
-#    while True:
-#        update_stats()
-#        x += 1
-#
-#        # Some cosmetic stuff
-#        sys.stdout.write('.')
-#        sys.stdout.flush()
-#        if (x % 60) == 59:
-#            sys.stdout.write('\n')
-#            sys.stdout.flush()
-#
-#        time.sleep(60)
-#
-#
-#if __name__ == '__main__':
-#    main()
+
+def main():
+    init()
+
+    x = 0
+    while True:
+        update_stats()
+        x += 1
+
+        # Some cosmetic stuff
+        sys.stdout.write('.')
+        sys.stdout.flush()
+        if (x % 60) == 59:
+            sys.stdout.write('\n')
+            sys.stdout.flush()
+
+
+if __name__ == '__main__':
+    main()
