@@ -27,3 +27,7 @@ spec:
               fieldPath: status.hostIP
         - name: DD_DOGSTATSD_PORT
           value: '8125'
+        - name: DD_ENTITY_ID
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.uid
